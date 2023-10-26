@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Sometype+Mono:wght@400;500;700&display=swap");
+:root {
+  --custom-font-family: "Sometype Mono", monospace;
+}
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+.app {
+  width: 100%;
+  height: 100dvh;
+  font-family: "Nunito", sans-serif;
+}
+
+.container {
+  background-color: red;
+  width: 80%;
+  margin: auto;
+  padding: 20px 40px;
+}
+
+.header {
+  display: flex;
+  padding: 20px 30px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header img {
+  width: 10em;
+}
+
+.header h1 {
+  color: rgb(230, 11, 11);
+}
+
+.svgContainer {
+  border-radius: 50%;
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: 1px 5px 5px rgb(176, 176, 176);
+}
+
+.socMed {
+  display: flex;
+  color: white;
+  gap: 20px;
+}
+
+.divider {
+  display: flex;
+  margin: 20px 80px;
+  &:before,
+  &:after {
+    content: "";
+    flex: 1;
+    /* min-width: 300px; */
+  }
+}
+
+.line {
+  align-items: center;
+  &:before,
+  &:after {
+    height: 2px;
+    margin: 0 1em;
+  }
+}
+
+.one-line {
+  &:before,
+  &:after {
+    background: black;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .divider {
+    margin: 20px 0px;
+  }
+  .svgContainer {
+    padding: 5px;
+  }
+  .socMed {
+    gap: 5px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  .header {
+    padding: 10px 20px;
+  }
+
+  .header img {
+    width: 6.5em;
+  }
+
+  .container {
+    width: 100%;
+  }
+}
