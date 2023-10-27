@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-photo-album": "^2.3.0",
+    "yet-another-react-lightbox": "^3.14.0"
+  }
+}

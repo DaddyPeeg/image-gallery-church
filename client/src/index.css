@@ -111,11 +111,11 @@ form {
 }
 
 .grid-container {
-  background-color: orange;
   display: grid;
-  grid-template-columns: repeat (3, 1fr);
-  grid-auto-rows: 10rem;
-  gap: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 300px;
+  gap: 20px;
+  margin-top: 50px;
 }
 
 @media screen and (max-width: 800px) {

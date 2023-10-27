@@ -11,9 +11,7 @@ const Gallery = () => {
             <input className="button-search" type="submit" value="Search" />
           </div>
         </form>
-        <div className="grid-container">
-          <GridContainer />
-        </div>
+        <GridContainer />
       </div>
     </>
   );
