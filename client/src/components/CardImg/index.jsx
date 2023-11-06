@@ -87,15 +87,11 @@ const GridItem = ({ img, srcSet, alt, index, setIndex, ...props }) => {
 const GridContainer = () => {
   const [index, setIndex] = useState(-1);
   const device = useMediaQuery("(max-width:500px)");
+  const isDeletion = useGalleryContext();
 
   return (
     <>
-      <div
-        className="grid-container"
-        style={{
-          marginTop: !device ? "20px" : "0px",
-        }}
-      >
+      <div className="grid-container">
         {photos.map((item, index) => (
           <GridItem
             key={`item-${index}`}
@@ -106,7 +102,7 @@ const GridContainer = () => {
             alt={`img-${index}`}
             index={index}
             setIndex={setIndex}
-            onClick={() => device && setIndex(index)}
+            onClick={() => device && !isDeletion && setIndex(index)}
           />
         ))}
       </div>

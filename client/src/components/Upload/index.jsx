@@ -2,9 +2,63 @@ import { useState } from "react";
 import { useGalleryUpdateContext } from "../../context";
 import { useGalleryContext } from "../../context";
 
-const ModalUpload = ({ modalOpen }) => {
-  console.log("Modal Rendered", modalOpen);
-  if (modalOpen) return <div className="modal">wewew</div>;
+const ModalUpload = ({ modalOpen, setModalOpen }) => {
+  const [selectedImages, setSelectedImages] = useState([]);
+  function onSetFiles(event) {
+    const files = event.target.files;
+    const filesArray = Array.from(files);
+
+    const imagesArray = filesArray.map((file) => {
+      return URL.createObjectURL(file);
+    });
+
+    setSelectedImages(imagesArray);
+  }
+
+  const isImages = () => {
+    if (!selectedImages.length > 0)
+      return {
+        justifyContent: "center",
+        alignItems: "center",
+      };
+  };
+
+  if (modalOpen)
+    return (
+      <>
+        <div
+          className="modal-popup"
+          onClick={() => {
+            setModalOpen(false);
+          }}
+        ></div>
+        <div className="modal">
+          <label>
+            + Add Images
+            <br />
+            <span>Up to 10 Images</span>
+            <input
+              type="file"
+              name="imagesUpload"
+              onChange={onSetFiles}
+              multiple
+              accept="image/png, image/jpeg, image/webp"
+            />
+          </label>
+          <div className="imageSet" style={isImages()}>
+            {selectedImages.length > 0
+              ? selectedImages.map((image, index) => {
+                  return (
+                    <div key={`${image}-${index}`}>
+                      <img src={image} alt={`${image}-${index}`} />
+                    </div>
+                  );
+                })
+              : "Image Preview"}
+          </div>
+        </div>
+      </>
+    );
 };
 
 const Upload = () => {
@@ -15,12 +69,19 @@ const Upload = () => {
     return clicked ? { transform: `translateY(${distance}rem)` } : {};
   };
   const [isModal, setIsModal] = useState(false);
-
+  function disableScroll() {
+    const bodyObject = document.getElementsByTagName("body");
+    if (isModal) bodyObject[0].style.overflow = "hidden";
+    else bodyObject[0].style.overflow = "auto";
+  }
+  disableScroll();
   return (
     <>
       <div className="toolbar-container">
         <div
-          onClick={() => setIsModal(true)}
+          onClick={() => {
+            setIsModal(true);
+          }}
           style={StyleComp(-3.9 - 3.3)}
           className="toolbar toolbar-upload"
         >
@@ -40,7 +101,7 @@ const Upload = () => {
           {clicked ? "X" : "0 0 0"}
         </div>
       </div>
-      <ModalUpload modalOpen={isModal} />
+      <ModalUpload modalOpen={isModal} setModalOpen={setIsModal} />
     </>
   );
 };
