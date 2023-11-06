@@ -1,5 +1,7 @@
 import Gallery from "./components/Gallery";
+import Upload from "./components/Upload";
 import { Facebook, Google, WhatsApp, Youtube } from "./assets";
+import { ImageGalleryContext } from "./context";
 
 const IconContainer = ({ children }) => {
   return <div className="svgContainer">{children}</div>;
@@ -15,6 +17,7 @@ function App() {
   const icons = componentMap.map((item, i) => (
     <IconContainer key={i}>{item.s}</IconContainer>
   ));
+
   return (
     <div className="app">
       <div className="header">
@@ -22,7 +25,10 @@ function App() {
         <div className="socMed">{icons}</div>
       </div>
       <h1 className="divider line one-line">Image Gallery</h1>
-      <Gallery />
+      <ImageGalleryContext>
+        <Gallery />
+        <Upload />
+      </ImageGalleryContext>
     </div>
   );
 }

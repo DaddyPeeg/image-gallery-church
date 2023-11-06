@@ -1,5 +1,5 @@
 import PhotoAlbum from "react-photo-album";
-
+import useMediaQuery from "../../useMediaQuery";
 import { Trash } from "../../assets";
 
 import Lightbox from "yet-another-react-lightbox";
@@ -12,90 +12,90 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import photos from "../../photos";
-console.log(photos);
+// console.log(photos);
 
 import { useState } from "react";
+import Loader from "../Loader";
 
-const Loader = () => {
+import { useGalleryContext } from "../../context";
+
+const CheckerBtn = ({ index }) => {
   return (
-    <main>
-      <svg
-        class="ip"
-        viewBox="0 0 256 128"
-        width="256px"
-        height="128px"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#5ebd3e" />
-            <stop offset="33%" stop-color="#ffb900" />
-            <stop offset="67%" stop-color="#f78200" />
-            <stop offset="100%" stop-color="#e23838" />
-          </linearGradient>
-          <linearGradient id="grad2" x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0%" stop-color="#e23838" />
-            <stop offset="33%" stop-color="#973999" />
-            <stop offset="67%" stop-color="#009cdf" />
-            <stop offset="100%" stop-color="#5ebd3e" />
-          </linearGradient>
-        </defs>
-        <g fill="none" stroke-linecap="round" stroke-width="16">
-          <g class="ip__track" stroke="#ddd">
-            <path d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56" />
-            <path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64" />
-          </g>
-          <g stroke-dasharray="180 656">
-            <path
-              class="ip__worm1"
-              stroke="url(#grad1)"
-              stroke-dashoffset="0"
-              d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"
-            />
-            <path
-              class="ip__worm2"
-              stroke="url(#grad2)"
-              stroke-dashoffset="358"
-              d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"
-            />
-          </g>
-        </g>
-      </svg>
-    </main>
+    <div className="btn-wrapper-div">
+      <div className="checkbox-wrapper-13">
+        <input id={`ck${index}`} type="checkbox" />
+      </div>
+    </div>
   );
 };
 
-const GridItem = ({ img, mode, srcSet, title, alt, index, ...props }) => {
+const GridItem = ({ img, srcSet, alt, index, setIndex, ...props }) => {
+  const isDeletion = useGalleryContext();
   const [isLoading, setIsLoading] = useState(true);
   return (
-    <div className="grid-item" {...props}>
+    <div htmlFor={`ck${index}`} className="grid-item" {...props}>
+      {isDeletion && <CheckerBtn index={index} />}
       {isLoading && <Loader />}
-      <img
-        src={img}
-        srcSet={srcSet}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setIsLoading(false)}
-      />
+      <label htmlFor={`ck${index}`}>
+        <img
+          src={img}
+          srcSet={srcSet}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setIsLoading(false)}
+        />
 
-      {!isLoading && (
-        <div className="img-title">
-          <h3>12/24/2023</h3>
-          <span>
-            <Trash color="white" size="20" />
-          </span>
-        </div>
-      )}
+        {!isLoading && !isDeletion && (
+          <div className="img-title">
+            <h3>12/24/2023</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "6rem",
+              }}
+            >
+              <div
+                style={{
+                  background: "#5050BA",
+                  height: "100%",
+                  width: "3.8rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                onClick={() => setIndex(index)}
+              >
+                View
+              </div>
+              <span>
+                <Trash color="white" size="20" />
+              </span>
+            </div>
+          </div>
+        )}
+      </label>
     </div>
   );
 };
 
 const GridContainer = () => {
   const [index, setIndex] = useState(-1);
+  const device = useMediaQuery("(max-width:500px)");
+
   return (
     <>
-      <div className="grid-container">
+      <div
+        className="grid-container"
+        style={{
+          marginTop: !device ? "20px" : "0px",
+        }}
+      >
         {photos.map((item, index) => (
           <GridItem
             key={`item-${index}`}
@@ -104,16 +104,12 @@ const GridContainer = () => {
               (subSrc, i) => subSrc.src + " " + subSrc.width + "w"
             )}
             alt={`img-${index}`}
-            onClick={() => setIndex(index)}
+            index={index}
+            setIndex={setIndex}
+            onClick={() => device && setIndex(index)}
           />
         ))}
       </div>
-      {/* <PhotoAlbum
-        photos={photos}
-        layout="rows"
-        targetRowHeight={150}
-        onClick={({ index }) => setIndex(index)}
-      /> */}
 
       <Lightbox
         slides={photos}
