@@ -432,7 +432,7 @@ form {
   align-items: center;
   border: 1px dotted black;
   width: 10rem;
-  height: 10rem;
+  height: 6rem;
   cursor: pointer;
   font-size: large;
   margin-block: 10px;
@@ -467,6 +467,35 @@ form {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.modal-control {
+  display: flex;
+}
+
+.modal-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-btn button {
+  min-width: 100px;
+  height: 3rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-btn button:nth-child(1) {
+  background-color: #5050ba;
+}
+
+.modal-btn button:nth-child(2) {
+  background-color: rgba(240, 41, 23);
 }
 
 @media screen and (max-width: 800px) {
