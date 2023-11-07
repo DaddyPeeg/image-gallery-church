@@ -1,14 +1,15 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { json } = require("body-parser");
 const axios = require("axios");
+const bodyParser = require("body-parser");
 const cloudinary = require("cloudinary").v2;
 
 const app = express();
 
 app.use(cors());
-app.use(json());
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
 const { parsed: config } = dotenv.config();
 
@@ -26,19 +27,64 @@ const auth = {
   password: config.CLOUDINARY_APISECRET,
 };
 
-// cloudinary.api.resources(
-//   { type: "upload", prefix: "imagegallery", max_results: 500 },
-//   function (error, result) {
-//     console.log(result, error);
-//   }
-// );
-
 app.get("/photos", async (req, res) => {
   try {
     const response = await axios.get(BASE_URL, { auth });
     return res.send(response.data);
   } catch (e) {
     console.log(e.response);
+  }
+});
+
+app.delete("/photos/delete/:id", async (req, res) => {
+  try {
+    if (req.params.id) {
+      s = await cloudinary.uploader.destroy(`imagegallery/${req.params.id}`, {
+        invalidate: true,
+      });
+    }
+    if (s.result === "not found") {
+      res.status(404).json({
+        deleted: s.result,
+        success: false,
+        message: "Product not Found",
+        statusCode: 404,
+      });
+    } else {
+      res.status(201).json({
+        deleted: req.params.id,
+        success: true,
+        message: "Product Deleted",
+        statusCode: 201,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      error: error,
+    });
+  }
+});
+
+app.delete("/photos/delete", async (req, res) => {
+  try {
+    if (req.body.resources) {
+      const data = req.body.resources;
+      const toBeDeleted = [];
+      data.map((image) => {
+        toBeDeleted.push(image.public_id);
+      });
+      const deletedItems = await cloudinary.api.delete_resources(toBeDeleted, {
+        invalidate: true,
+      });
+      console.log(deletedItems);
+      res.status(201).send(deletedItems);
+    }
+  } catch (e) {
+    console.log(error);
+    res.status(400).json({
+      error: error,
+    });
   }
 });
 

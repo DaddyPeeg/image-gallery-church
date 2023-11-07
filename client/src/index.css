@@ -500,6 +500,33 @@ form {
   background-color: rgba(240, 41, 23);
 }
 
+.button-control {
+  display: flex;
+  background-color: #5050ba;
+  margin-top: 20px;
+  width: 10rem;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.button-control button {
+  color: white;
+  font-weight: bold;
+  border: none;
+  width: 5rem;
+  padding: 1rem 0;
+  font-size: 1rem;
+}
+.button-control button:nth-child(2) {
+  background-color: #eda4a4;
+  cursor: not-allowed;
+}
+.button-control button:nth-child(1) {
+  background-color: #009833;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 800px) {
   .divider {
     margin: 20px 0px;
@@ -511,7 +538,7 @@ form {
     gap: 5px;
   }
   .container {
-    padding: 20px 0px;
+    padding-inline: 0px;
   }
   .grid-container {
     grid-auto-rows: 200px;
@@ -543,7 +570,7 @@ form {
 
   .container {
     width: 100%;
-    padding: 20px 0;
+    padding-bottom: 6rem;
   }
 
   form {
@@ -563,5 +590,12 @@ form {
   .options {
     padding-inline: 20px;
     font-size: 0.7rem;
+  }
+  .button-control {
+    margin: 20px auto;
+  }
+  .button-control button {
+    padding: 0.4rem 0;
+    font-size: 0.8rem;
   }
 }

@@ -1,8 +1,13 @@
-import PhotoAlbum from "react-photo-album";
 import useMediaQuery from "../../useMediaQuery";
 import { Trash } from "../../assets";
-import { useQuery } from "react-query";
-import axios from "axios";
+import { useQueryClient, useMutation, useQuery } from "react-query";
+import {
+  addImages,
+  updateImages,
+  deleteImages,
+  getImages,
+  deleteSingleImage,
+} from "../../api/imageGalleryApi";
 
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -16,10 +21,11 @@ import "yet-another-react-lightbox/plugins/thumbnails.css";
 import processImages from "../../photos";
 // console.log(photos);
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Loader from "../Loader";
 
 import { useGalleryContext, useGalleryUpdateContext } from "../../context";
+import newUseQuery from "../../api/useQueryHook";
 const CheckerBtn = ({ index, ...props }) => {
   return (
     <div className="btn-wrapper-div">
@@ -30,12 +36,22 @@ const CheckerBtn = ({ index, ...props }) => {
   );
 };
 
-const GridItem = ({ img, srcSet, alt, index, setIndex, imgDesc, ...props }) => {
+const GridItem = ({
+  img,
+  srcSet,
+  alt,
+  index,
+  setIndex,
+  deleteImageSingle,
+  imgDesc,
+  ...props
+}) => {
   const { isDelete, toDelete } = useGalleryContext();
   const { setStatusDelete } = useGalleryUpdateContext();
   const [isLoading, setIsLoading] = useState(true);
+
   const handleDelete = (imgDesc) => {
-    console.log(imgDesc);
+    deleteImageSingle.mutate(imgDesc);
   };
   const checkboxC = toDelete.some((obj) =>
     obj.checkBoxIdx === index ? true : false
@@ -114,46 +130,93 @@ const GridItem = ({ img, srcSet, alt, index, setIndex, imgDesc, ...props }) => {
   );
 };
 
-const fetchImages = () => {
-  return axios.get(`${import.meta.env.VITE_API_URL}/photos`);
-};
-
 const GridContainer = () => {
   const [index, setIndex] = useState(-1);
   const device = useMediaQuery("(max-width:500px)");
-  const isDeletion = useGalleryContext();
-  const { isLoading, data, isError, error, isFetching, refetch } = useQuery(
-    "gallery-images",
-    fetchImages
-  );
+  const { isDelete, toDelete } = useGalleryContext();
+  const { setStatusDelete } = useGalleryUpdateContext();
+
+  const queryClient = useQueryClient();
+  const { isLoading, data, isError, error, isFetching, refetch } =
+    newUseQuery();
+
+  const deleteImagesApi = useMutation(deleteImages, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("gallery-images");
+    },
+  });
+
+  const deleteSingleImageApi = useMutation(deleteSingleImage, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("gallery-images");
+    },
+  });
+
+  const addImagesApi = useMutation(addImages, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("gallery-images");
+    },
+  });
+
+  const handleDeleteMultiple = () => {
+    if (isDelete && toDelete.length > 0) {
+      if (confirm(`Are you sure you want to delete ${toDelete.length}?`)) {
+        deleteImagesApi.mutate(toDelete);
+        setStatusDelete((prev) => ({ ...prev, toDelete: [], isDelete: false }));
+      } else {
+        alert("Cancelled");
+      }
+    }
+  };
 
   if (isLoading) return "Loading";
   if (isError) return <h2>{error.message}</h2>;
   else {
-    const photos = processImages(data?.data.resources);
+    const photos = processImages(data?.resources);
     return (
       <>
-        <button onClick={() => refetch()}>Refresh</button>
+        <div className="button-control">
+          <button onClick={() => refetch()}>
+            {isFetching ? "..." : "Refresh"}
+          </button>
+          <button
+            style={{
+              backgroundColor: isDelete && toDelete.length > 0 && "#F05E5E",
+              cursor: isDelete && toDelete.length > 0 && "pointer",
+            }}
+            onClick={() => handleDeleteMultiple()}
+          >
+            Delete
+          </button>
+        </div>
+
         <div className="grid-container">
-          {photos.map((item, index) => (
-            <GridItem
-              key={`item-${index}`}
-              img={item.src}
-              srcSet={item.srcSet.map(
-                (subSrc, i) => subSrc.src + " " + subSrc.width + "w"
-              )}
-              alt={`img-${index}`}
-              index={index}
-              setIndex={setIndex}
-              onClick={() => device && !isDeletion && setIndex(index)}
-              imgDesc={{
-                asset_id: item.asset_id,
-                public_id: item.public_id,
-                format: item.format,
-                checkBoxIdx: index,
-              }}
-            />
-          ))}
+          {isFetching ||
+          deleteImagesApi.isLoading ||
+          deleteSingleImageApi.isLoading
+            ? "Refetching Data"
+            : photos.length > 0
+            ? photos.map((item, index) => (
+                <GridItem
+                  key={`item-${index}`}
+                  img={item.src}
+                  srcSet={item.srcSet.map(
+                    (subSrc, i) => subSrc.src + " " + subSrc.width + "w"
+                  )}
+                  alt={`img-${index}`}
+                  index={index}
+                  setIndex={setIndex}
+                  onClick={() => device && !isDelete && setIndex(index)}
+                  deleteImageSingle={deleteSingleImageApi}
+                  imgDesc={{
+                    asset_id: item.asset_id,
+                    public_id: item.public_id,
+                    format: item.format,
+                    checkBoxIdx: index,
+                  }}
+                />
+              ))
+            : "No Data to Fetch"}
         </div>
 
         <Lightbox

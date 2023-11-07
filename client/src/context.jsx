@@ -17,12 +17,12 @@ export const ImageGalleryContext = ({ children }) => {
     isDelete: false,
     toDelete: [],
   });
-  console.log(statusDelete);
 
   const toggleIsDelete = () => {
     setStatusDelete((prevValue) => ({
       ...prevValue,
       isDelete: !statusDelete.isDelete,
+      toDelete: [],
     }));
   };
 
