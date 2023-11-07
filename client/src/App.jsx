@@ -2,6 +2,10 @@ import Gallery from "./components/Gallery";
 import Upload from "./components/Upload";
 import { Facebook, Google, WhatsApp, Youtube } from "./assets";
 import { ImageGalleryContext } from "./context";
+import { QueryClientProvider, QueryClient } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+
+const queryClient = new QueryClient();
 
 const IconContainer = ({ children }) => {
   return <div className="svgContainer">{children}</div>;
@@ -25,10 +29,13 @@ function App() {
         <div className="socMed">{icons}</div>
       </div>
       <h1 className="divider line one-line">Image Gallery</h1>
-      <ImageGalleryContext>
-        <Gallery />
-        <Upload />
-      </ImageGalleryContext>
+      <QueryClientProvider client={queryClient}>
+        <ImageGalleryContext>
+          <Gallery />
+          <Upload />
+        </ImageGalleryContext>
+        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+      </QueryClientProvider>
     </div>
   );
 }

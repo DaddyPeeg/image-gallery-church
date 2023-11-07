@@ -19,7 +19,6 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
 
     setSelectedImages(imagesArray);
   }
-  console.log(selectedImages);
   const isImages = () => {
     if (!selectedImages.length > 0)
       return {
@@ -110,8 +109,8 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
 };
 
 const Upload = () => {
-  const setIsDelete = useGalleryUpdateContext();
-  const isDelete = useGalleryContext();
+  const { toggleIsDelete } = useGalleryUpdateContext();
+  const { isDelete } = useGalleryContext();
   const [clicked, setClicked] = useState(false);
   const StyleComp = (distance) => {
     return clicked ? { transform: `translateY(${distance}rem)` } : {};
@@ -136,7 +135,7 @@ const Upload = () => {
           +
         </div>
         <div
-          onClick={setIsDelete}
+          onClick={toggleIsDelete}
           style={StyleComp(-3.9)}
           className="toolbar toolbar-delete"
         >

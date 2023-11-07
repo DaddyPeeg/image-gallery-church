@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createContext, useState, useContext } from "react";
 
 const GalleryContext = createContext();
@@ -12,15 +13,27 @@ export function useGalleryUpdateContext() {
 }
 
 export const ImageGalleryContext = ({ children }) => {
-  const [isDelete, setIsDelete] = useState(false);
+  const [statusDelete, setStatusDelete] = useState({
+    isDelete: false,
+    toDelete: [],
+  });
+  console.log(statusDelete);
 
   const toggleIsDelete = () => {
-    setIsDelete((prev) => !prev);
+    setStatusDelete((prevValue) => ({
+      ...prevValue,
+      isDelete: !statusDelete.isDelete,
+    }));
+  };
+
+  const allSet = {
+    setStatusDelete,
+    toggleIsDelete,
   };
 
   return (
-    <GalleryContext.Provider value={isDelete}>
-      <GalleryUpdateContext.Provider value={toggleIsDelete}>
+    <GalleryContext.Provider value={statusDelete}>
+      <GalleryUpdateContext.Provider value={allSet}>
         {children}
       </GalleryUpdateContext.Provider>
     </GalleryContext.Provider>
