@@ -54,13 +54,16 @@ app.post("/upload", upload.array("photos"), async (req, res) => {
   try {
     const files = req.files;
     const images = await getImagePaths();
+    console.log(req.files);
     const logFiles = [];
+    console.log("Uploading...");
     for (const image of images) {
       const result = await cloudinary.uploader.upload(image, {
         folder: "imagegallery",
       });
       logFiles.push(result);
     }
+    console.log(logFiles);
     console.log("Uploading Complete");
     const tFiles = await transferFiles();
     if (tFiles) {
@@ -97,6 +100,7 @@ app.delete("/photos/delete/:id", async (req, res) => {
         statusCode: 404,
       });
     } else {
+      console.log(`Deleted Image - ${req.params.id}`);
       console.log("Deletion Complete");
       res.status(201).json({
         deleted: req.params.id,
