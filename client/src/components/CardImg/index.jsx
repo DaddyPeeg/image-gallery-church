@@ -152,12 +152,6 @@ const GridContainer = () => {
     },
   });
 
-  const addImagesApi = useMutation(addImages, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("gallery-images");
-    },
-  });
-
   const handleDeleteMultiple = () => {
     if (isDelete && toDelete.length > 0) {
       if (confirm(`Are you sure you want to delete ${toDelete.length}?`)) {

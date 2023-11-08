@@ -1,11 +1,43 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useGalleryUpdateContext } from "../../context";
 import { useGalleryContext } from "../../context";
+import { useQueryClient, useMutation, useQuery } from "react-query";
+import { addImages } from "../../api/imageGalleryApi";
 
-const ModalUpload = ({ modalOpen, setModalOpen }) => {
+const UploadScreen = () => {
+  return (
+    <>
+      <div className="loading-modal">
+        <div className="loading-screen">
+          <img src="loading.gif" alt="loading" />
+          <h2>Uploading...</h2>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const ModalUpload = ({ modalOpen, setModalOpen, addImagesApi }) => {
+  const uploadFile = useRef();
   const [selectedImages, setSelectedImages] = useState([]);
+  const [fileImages, setFileImages] = useState([]);
+
+  console.log(fileImages);
+
+  function newFileImages(n) {
+    let newFilelist = new DataTransfer();
+    const files = [...fileImages];
+    files.splice(n, 1);
+    for (let i = 0; i < files.length; i++) {
+      newFilelist.items.add(files[i]);
+    }
+    // console.log(newFilelist.files);
+    setFileImages(newFilelist.files);
+  }
+
   function onSetFiles(event) {
     const files = event.target.files;
+    setFileImages(files);
     const filesArray = Array.from(files);
     if (filesArray.length > 10) {
       event.preventDefault();
@@ -29,8 +61,16 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
   };
 
   const UploadImages = () => {
-    if (selectedImages.length > 0) {
-      console.log(selectedImages);
+    if (fileImages.length > 0) {
+      const formData = new FormData();
+      for (let i = 0; i < fileImages.length; i++) {
+        formData.append("photos", fileImages[i]);
+      }
+
+      addImagesApi.mutate(formData);
+      setFileImages([]);
+      setSelectedImages([]);
+      setModalOpen(false);
     }
   };
 
@@ -60,6 +100,7 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
               <br />
               <span>Up to 10 Images</span>
               <input
+                ref={uploadFile}
                 type="file"
                 name="imagesUpload"
                 onChange={onSetFiles}
@@ -77,7 +118,10 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
               </button>
               <button
                 style={btnDisabled(logic)}
-                onClick={() => setSelectedImages([])}
+                onClick={() => {
+                  setSelectedImages([]);
+                  setFileImages([]);
+                }}
                 disabled={logic}
               >
                 Clear
@@ -92,11 +136,12 @@ const ModalUpload = ({ modalOpen, setModalOpen }) => {
                       <img
                         src={image}
                         alt={`${image}-${index}`}
-                        onClick={() =>
+                        onClick={() => {
                           setSelectedImages(
                             selectedImages.filter((item, i) => i !== index)
-                          )
-                        }
+                          );
+                          newFileImages(index);
+                        }}
                       />
                     </div>
                   );
@@ -116,6 +161,13 @@ const Upload = () => {
     return clicked ? { transform: `translateY(${distance}rem)` } : {};
   };
   const [isModal, setIsModal] = useState(false);
+  const queryClient = useQueryClient();
+  const addImagesApi = useMutation(addImages, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("gallery-images");
+    },
+  });
+  console.log(addImagesApi.isLoading);
   function disableScroll() {
     const bodyObject = document.getElementsByTagName("body");
     if (isModal) bodyObject[0].style.overflow = "hidden";
@@ -148,7 +200,12 @@ const Upload = () => {
           {clicked ? "X" : "0 0 0"}
         </div>
       </div>
-      <ModalUpload modalOpen={isModal} setModalOpen={setIsModal} />
+      <ModalUpload
+        modalOpen={isModal}
+        setModalOpen={setIsModal}
+        addImagesApi={addImagesApi}
+      />
+      {addImagesApi.isLoading && <UploadScreen />}
     </>
   );
 };

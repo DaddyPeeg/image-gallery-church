@@ -13,6 +13,9 @@
   "dependencies": {
     "@cloudinary/react": "^1.11.2",
     "@cloudinary/url-gen": "^1.12.0",
+    "@tanstack/query-sync-storage-persister": "^5.7.2",
+    "@tanstack/react-query": "^5.7.2",
+    "@tanstack/react-query-persist-client": "^5.7.2",
     "axios": "^0.21.4",
     "json-server": "^0.16.3",
     "react": "^18.2.0",
