@@ -12,10 +12,6 @@ export const getImages = async () => {
 };
 
 export const addImages = async (images) => {
-  for (let [key, value] of images) {
-    console.log(key + ", " + value);
-  }
-
   return await imageGalleryApi.post("/upload", images);
 };
 

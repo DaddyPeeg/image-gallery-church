@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useGalleryUpdateContext } from "../../context";
 import { useGalleryContext } from "../../context";
 import { useQueryClient, useMutation, useQuery } from "react-query";
@@ -21,8 +21,6 @@ const ModalUpload = ({ modalOpen, setModalOpen, addImagesApi }) => {
   const uploadFile = useRef();
   const [selectedImages, setSelectedImages] = useState([]);
   const [fileImages, setFileImages] = useState([]);
-
-  console.log(fileImages);
 
   function newFileImages(n) {
     let newFilelist = new DataTransfer();
@@ -70,7 +68,8 @@ const ModalUpload = ({ modalOpen, setModalOpen, addImagesApi }) => {
       addImagesApi.mutate(formData);
       setFileImages([]);
       setSelectedImages([]);
-      setModalOpen(false);
+      // setModalOpen(false);
+      console.log("wew");
     }
   };
 
@@ -167,7 +166,11 @@ const Upload = () => {
       queryClient.invalidateQueries("gallery-images");
     },
   });
-  console.log(addImagesApi.isLoading);
+  useEffect(() => {
+    if (!addImagesApi.isLoading) {
+      setIsModal((prev) => !prev);
+    }
+  }, [addImagesApi.isLoading]);
   function disableScroll() {
     const bodyObject = document.getElementsByTagName("body");
     if (isModal) bodyObject[0].style.overflow = "hidden";

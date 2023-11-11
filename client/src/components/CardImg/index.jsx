@@ -19,9 +19,8 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import processImages from "../../photos";
-// console.log(photos);
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Loader from "../Loader";
 
 import { useGalleryContext, useGalleryUpdateContext } from "../../context";
@@ -43,9 +42,11 @@ const GridItem = ({
   index,
   setIndex,
   deleteImageSingle,
+  imageDate,
   imgDesc,
   ...props
 }) => {
+  const editedImageDate = imageDate.slice(0, 10);
   const { isDelete, toDelete } = useGalleryContext();
   const { setStatusDelete } = useGalleryUpdateContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -94,7 +95,7 @@ const GridItem = ({
 
         {!isLoading && !isDelete && (
           <div className="img-title">
-            <h3>12/24/2023</h3>
+            <h3>{editedImageDate}</h3>
             <div
               style={{
                 display: "flex",
@@ -130,15 +131,22 @@ const GridItem = ({
   );
 };
 
-const GridContainer = () => {
+const GridContainer = ({ inputRef }) => {
   const [index, setIndex] = useState(-1);
   const device = useMediaQuery("(max-width:500px)");
-  const { isDelete, toDelete } = useGalleryContext();
-  const { setStatusDelete } = useGalleryUpdateContext();
+  const { isDelete, toDelete, dataGeneral } = useGalleryContext();
+  const { setStatusDelete, toggleIsDelete } = useGalleryUpdateContext();
 
   const queryClient = useQueryClient();
   const { isLoading, data, isError, error, isFetching, refetch } =
     newUseQuery();
+
+  useEffect(() => {
+    if (!isLoading) {
+      const photosNew = processImages(data?.resources);
+      setStatusDelete((prev) => ({ ...prev, dataGeneral: [...photosNew] }));
+    }
+  }, [isLoading, isFetching]);
 
   const deleteImagesApi = useMutation(deleteImages, {
     onSuccess: () => {
@@ -163,14 +171,27 @@ const GridContainer = () => {
     }
   };
 
+  if (!isLoading) {
+    localStorage.setItem(
+      "persistData",
+      JSON.stringify(processImages(data?.resources))
+    );
+  }
+
   if (isLoading) return "Loading";
   if (isError) return <h2>{error.message}</h2>;
   else {
-    const photos = processImages(data?.resources);
+    const photos = dataGeneral;
     return (
       <>
         <div className="button-control">
-          <button onClick={() => refetch()}>
+          <button
+            onClick={() => {
+              refetch();
+              toggleIsDelete();
+              inputRef.current.value = "";
+            }}
+          >
             {isFetching ? "..." : "Refresh"}
           </button>
           <button
@@ -189,11 +210,12 @@ const GridContainer = () => {
           deleteImagesApi.isLoading ||
           deleteSingleImageApi.isLoading
             ? "Refetching Data"
-            : photos.length > 0
+            : photos.length > 0 && photos
             ? photos.map((item, index) => (
                 <GridItem
                   key={`item-${index}`}
                   img={item.src}
+                  imageDate={item.created_at}
                   srcSet={item.srcSet.map(
                     (subSrc, i) => subSrc.src + " " + subSrc.width + "w"
                   )}

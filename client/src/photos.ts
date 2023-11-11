@@ -36,12 +36,14 @@ function processImages(cloudImage) {
     const public_id = photo.public_id;
     const format = photo.format;
     const asset_id = photo.asset_id;
+    const created_at = photo.created_at;
     return {
       src: unsplashLink(photo.public_id, width, photo.format),
       width,
       public_id,
       format,
       asset_id,
+      created_at,
       srcSet: breakpoints.map((breakpoint) => {
         return {
           src: unsplashLink(photo.public_id, breakpoint, photo.format),

@@ -16,6 +16,7 @@ export const ImageGalleryContext = ({ children }) => {
   const [statusDelete, setStatusDelete] = useState({
     isDelete: false,
     toDelete: [],
+    dataGeneral: [],
   });
 
   const toggleIsDelete = () => {
